@@ -43,9 +43,20 @@ const createCard = (ele) => {
   return cardDiv;
 };
 
-const cards = tempData.map((elem) => createCard(elem));
+const loadMovies = () => {
+  $.get("https://students-api.up.railway.app/movies", (data, status) => {
+    if (status === "success") {
+      const movies = data;
+      const container = document.getElementById("cards-container");
 
-cards.forEach((ele) => {
-  const container = document.getElementById("cards-container");
-  container.appendChild(ele);
-});
+      movies.forEach((movie) => {
+        const card = createCard(movie);
+        container.appendChild(card);
+      });
+    } else {
+      console.error("Hubo un error al cargar las películas.");
+    }
+  });
+};
+
+loadMovies();
