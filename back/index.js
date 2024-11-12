@@ -1,5 +1,8 @@
 const app = require("./src/server");
+const dbCon = require("./src/config/dbCon");
 
-app.listen(3001, () => {
-  console.log("Servidor escuchando en el puerto 3001");
+dbCon().then((res) => {
+  app.listen(3001, () => {
+    console.log("Servidor escuchando en el puerto 3001");
+  });
 });
