@@ -3,7 +3,7 @@ const renderCards = require("./renderCards");
 
 const loadMovies = async () => {
   try {
-    const movies = await (await axios.get("http://localhost:3001/movies")).data;
+    const movies = (await axios.get("http://localhost:3001/movies")).data;
     renderCards(movies);
   } catch (error) {
     console.log(error.message);
@@ -15,6 +15,16 @@ loadMovies();
 //Formulario
 
 const form = document.getElementById("create-movie-form");
+
+//Formato para la duración
+
+const formatDuration = (min) => {
+  const horas = Math.floor(min / 60);
+  const minutos = min % 60;
+  return `${horas} h y ${minutos} min`;
+};
+
+//Géneros
 
 const selectedGenres = [];
 const genreSelect = document.getElementById("genre-select");
@@ -52,6 +62,8 @@ const removeGenre = (genre) => {
 
 genreSelect.addEventListener("change", addGenre);
 
+//Limpiar inputs
+
 const resetInputs = () => {
   document.getElementById("title").value = "";
   document.getElementById("year").value = "";
@@ -61,24 +73,40 @@ const resetInputs = () => {
   document.getElementById("poster-url").value = "";
 };
 
-const sendForm = (event) => {
+//Enviar Form
+
+const sendForm = async (event) => {
   event.preventDefault();
 
   const title = document.getElementById("title").value.trim();
   const year = document.getElementById("year").value.trim();
   const director = document.getElementById("director").value.trim();
-  const duration = document.getElementById("duration").value.trim();
-  const rating = document.getElementById("rating").value.trim();
+  const duration = Number(document.getElementById("duration").value.trim());
+  const formatterDuration = formatDuration(duration);
+  const rate = document.getElementById("rating").value.trim();
   const poster = document.getElementById("poster-url").value.trim();
 
-  if (!title || !year || !director || !duration || !rating || !poster) {
+  const movie = {
+    title,
+    year,
+    director,
+    duration: formatterDuration,
+    rate,
+    poster,
+  };
+
+  if (!title || !year || !director || !duration || !rate || !poster) {
     alert("Por favor completa todos los datos");
     return;
   } else {
     alert("Formulario enviado correctamente");
-    return { title, year, director, duration, rating, poster };
+    await axios.post("http://localhost:3001/movies/create", movie);
+
+    return { title, year, director, duration, rate, poster };
   }
 };
+
+//Botones
 
 const resetButton = document.getElementById("reset-button");
 
