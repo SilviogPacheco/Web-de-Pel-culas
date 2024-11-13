@@ -65,12 +65,11 @@ genreSelect.addEventListener("change", addGenre);
 //Limpiar inputs
 
 const resetInputs = () => {
-  document.getElementById("title").value = "";
-  document.getElementById("year").value = "";
-  document.getElementById("director").value = "";
-  document.getElementById("duration").value = "";
-  document.getElementById("rating").value = "";
-  document.getElementById("poster-url").value = "";
+  ["title", "year", "director", "duration", "rating", "poster-url"].forEach(
+    (id) => {
+      document.getElementById(id).value = "";
+    }
+  );
 };
 
 //Enviar Form
@@ -78,32 +77,37 @@ const resetInputs = () => {
 const sendForm = async (event) => {
   event.preventDefault();
 
-  const title = document.getElementById("title").value.trim();
-  const year = document.getElementById("year").value.trim();
-  const director = document.getElementById("director").value.trim();
-  const duration = Number(document.getElementById("duration").value.trim());
-  const formatterDuration = formatDuration(duration);
-  const rate = document.getElementById("rating").value.trim();
-  const poster = document.getElementById("poster-url").value.trim();
-
-  const movie = {
-    title,
-    year,
-    director,
-    duration: formatterDuration,
-    rate,
-    poster,
-  };
-
-  if (!title || !year || !director || !duration || !rate || !poster) {
+  const movie = getFormData();
+  if (!isFormValid(movie)) {
     alert("Por favor completa todos los datos");
     return;
-  } else {
-    alert("Formulario enviado correctamente");
-    await axios.post("http://localhost:3001/movies/create", movie);
-
-    return { title, year, director, duration, rate, poster };
   }
+
+  movie.duration = formatDuration(Number(movie.duration));
+  alert("Formulario enviado correctamente");
+
+  try {
+    await axios.post("http://localhost:3001/movies/create", movie);
+  } catch (error) {
+    console.log("Error al enviar la película:", error.message);
+  }
+};
+
+// Obtener datos del formulario
+const getFormData = () => ({
+  title: document.getElementById("title").value.trim(),
+  year: document.getElementById("year").value.trim(),
+  director: document.getElementById("director").value.trim(),
+  duration: document.getElementById("duration").value.trim(),
+  rate: document.getElementById("rating").value.trim(),
+  poster: document.getElementById("poster-url").value.trim(),
+  genre: selectedGenres,
+});
+
+// Validación del formulario
+const isFormValid = (movie) => {
+  const { title, year, director, duration, rate, poster } = movie;
+  return title && year && director && duration && rate && poster;
 };
 
 //Botones
